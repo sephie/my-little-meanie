@@ -13,3 +13,7 @@ Project "voor m'n doelstellingen" that aims to be a full-stack JS app. Originall
 - Deployed to and run from Heroku
 - Express 4 app on the server
 - Serves a static page
+
+## To do
+- heatmap
+- smooth out deployment and sort out github+heroku issues
