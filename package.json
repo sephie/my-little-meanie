@@ -1,5 +1,5 @@
 {
-  "name": "meanie",
+  "name": "mean-app",
   "version": "0.1.5",
   "description": "A Node.js app using Express 4, MongoDB, and something for heatmaps",
   "main": "index.js",
