@@ -2,6 +2,7 @@
 -modularize this
 -modularize simpleHeat.js
 -...
+- draw on mousedown + on drag
  */
 
 var logSpace = document.querySelector('.log-space');
@@ -16,17 +17,32 @@ var radiusSetting = document.querySelector('#radius');
 var blurSetting = document.querySelector('#blur');
 var browserChangeEvent = 'oninput' in radiusSetting ? 'oninput' : 'onchange';
 
+var POINT_OPACITY = 1;
+
 heatCanvas.width= screen.width;
 heatCanvas.height= screen.height;
-heatMap = SimpleHeat('canvas').max(18);
+getHeatData();
 
 window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
     window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
+//events
 coolButton.addEventListener('click', doSomethingCool);
-postButton.addEventListener('click', doPost);
 deleteButton.addEventListener('click', doDelete);
 
+window.onclick = function(e) {
+  var point = [e.layerX, e.layerY, POINT_OPACITY];
+  heatMap.add(point);
+  doPoint(point);
+  frame = frame || window.requestAnimationFrame(draw);
+};
+
+radiusSetting[browserChangeEvent] = blurSetting[browserChangeEvent] = function(e) {
+  heatMap.radius(+radiusSetting.value, +blurSetting.value);
+  frame = frame || window.requestAnimationFrame(draw);
+};
+
+//requests
 function doSomethingCool() {
   var oReq = new XMLHttpRequest();
   oReq.addEventListener('load', resultToScreenHandler);
@@ -34,25 +50,39 @@ function doSomethingCool() {
   oReq.send();
 }
 
-function doPost() {
+/**
+ * POST a point
+ * @param {array} point - [x ,y]
+ */
+function doPoint(point) {
   var oReq = new XMLHttpRequest();
-  var thing = {};
-  thing.key = 'mahKey';
-  thing.value = 'mahValue';
-
   oReq.addEventListener('load', resultToScreenHandler);
-  oReq.open('POST', '/things');
+  oReq.open('POST', '/heat');
   oReq.setRequestHeader('Content-Type', 'application/json');
-  oReq.send(JSON.stringify(thing));
+  oReq.send(JSON.stringify(point));
 }
 
 function doDelete() {
   var oReq = new XMLHttpRequest();
   oReq.addEventListener('load', resultToScreenHandler);
-  oReq.open('DELETE', '/things');
+  oReq.open('DELETE', '/heat');
   oReq.send();
 }
 
+function getHeatData() {
+  var oReq = new XMLHttpRequest();
+  oReq.addEventListener('load', initHeat);
+  oReq.open('GET', '/heat');
+  oReq.send();
+}
+
+function initHeat() {
+  var data = JSON.parse(this.responseText);
+  heatMap = SimpleHeat('canvas').data(data).max(4);
+  heatMap.draw();
+}
+
+//rendering
 function resultToScreenHandler() {
   console.log('handler: ', this);
   logSpace.innerHTML += this.responseText + '<br>';
@@ -62,14 +92,3 @@ function draw() {
   heatMap.draw();
   frame = null;
 }
-
-window.onclick = function(e) {
-  heatMap.add([e.layerX, e.layerY, 1]);
-  frame = frame || window.requestAnimationFrame(draw);
-};
-
-radiusSetting[browserChangeEvent] = blurSetting[browserChangeEvent] = function(e) {
-  heatMap.radius(+radiusSetting.value, +blurSetting.value);
-  frame = frame || window.requestAnimationFrame(draw);
-};
-

@@ -1,5 +1,4 @@
 html {
-    text-align: center;
     font: 16px/1.4 "Helvetica Neue", Arial, sans-serif;
     color: #555;
 }
@@ -29,6 +28,7 @@ a {
 
 .info {
     position: absolute;
+    padding: 10px;
     top: 0;
     left: 0;
 }

@@ -19,12 +19,12 @@ mongoose.connect(dbUriString, function(err, res) {
   }
 });
 
-var thingSchema = new mongoose.Schema({
-  key: String,
-  value: String
+var heatPointSchema = new mongoose.Schema({
+  x: Number,
+  y: Number,
+  opacity: Number
 });
-var Thing = mongoose.model('Things', thingSchema);
-
+var HeatPoint = mongoose.model('HeatPoint', heatPointSchema);
 
 // Static page
 // -----------
@@ -41,7 +41,6 @@ app.get('/', function(request, response) {
   response.sendfile(__dirname + '/public/index.html');
 });
 
-
 // REST API
 // --------
 app.get('/cool', function(request, response) {
@@ -52,33 +51,46 @@ app.get('/cool', function(request, response) {
   response.send(result);
 });
 
-app.route('/things')//todo: /:thingId
+app.route('/heat')
     .get(function(req, res) {
-      Thing.find(function(err, things) {
+      HeatPoint.find().lean().exec(function(err, docs) {
         if (err) return console.error(err);
-        res.send(things);
+        res.json(transformToHeatData(docs));
       });
     })
     .post(function(req, res) {
-      console.log('Express: /things POST: ', req.body);
-      var newThing = new Thing(
-          {
-            key: req.body.key,
-            value: req.body.value
-          }
-      );
-      newThing.save(function(err, thing) {
-        if (err) console.log(err);
-        console.log('Saved a thing!');
+      console.log('Express: /heat POST: ', req.body);
+
+      dbSaveThing(req).then(function() {
         res.json(req.body)
       });
     })
     .delete(function(req, res) {
-      console.log('Express: /things DELETE');
-      Thing.remove({}, function(err) {
+      console.log('Express: /heat DELETE');
+      HeatPoint.remove({}, function(err) {
         if (err) console.log(err);
         res.send('Deleted all the things');
       });
     });
 
+function transformToHeatData(docs) {
+  docs.forEach(function(el, index) {
+    docs[index] = [el.x, el.y, el.opacity];
+  });
 
+  return docs;
+}
+
+function dbSaveThing(data) {
+  var newThing = new HeatPoint(
+      {
+        x: data.body[0],
+        y: data.body[1],
+        opacity: data.body[2]
+      }
+  );
+  return newThing.save(function(err, thing) {
+    if (err) console.log(err);
+    console.log('Saved a thing!');
+  });
+}
