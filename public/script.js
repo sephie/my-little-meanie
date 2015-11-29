@@ -10,6 +10,18 @@ var postButton = document.querySelector('.post-button');
 var deleteButton = document.querySelector('.delete-button');
 
 var heatCanvas = document.querySelector('#canvas');
+var heatMap;
+var frame;
+var radiusSetting = document.querySelector('#radius');
+var blurSetting = document.querySelector('#blur');
+var browserChangeEvent = 'oninput' in radiusSetting ? 'oninput' : 'onchange';
+
+heatCanvas.width= screen.width;
+heatCanvas.height= screen.height;
+heatMap = SimpleHeat('canvas').max(18);
+
+window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+    window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
 coolButton.addEventListener('click', doSomethingCool);
 postButton.addEventListener('click', doPost);
@@ -46,31 +58,18 @@ function resultToScreenHandler() {
   logSpace.innerHTML += this.responseText + '<br>';
 }
 
-
-window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
-    window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-
-heatCanvas.width= screen.width;
-heatCanvas.height= screen.height;
-var heat = SimpleHeat('canvas').max(18),
-    frame;
-
 function draw() {
-  heat.draw();
+  heatMap.draw();
   frame = null;
 }
-draw();
-window.onmousemove = function(e) {
-  heat.add([e.layerX, e.layerY, 1]);
+
+window.onclick = function(e) {
+  heatMap.add([e.layerX, e.layerY, 1]);
   frame = frame || window.requestAnimationFrame(draw);
 };
 
-var radius = document.querySelector('#radius'),
-    blur = document.querySelector('#blur'),
-    changeType = 'oninput' in radius ? 'oninput' : 'onchange';
-
-radius[changeType] = blur[changeType] = function(e) {
-  heat.radius(+radius.value, +blur.value);
+radiusSetting[browserChangeEvent] = blurSetting[browserChangeEvent] = function(e) {
+  heatMap.radius(+radiusSetting.value, +blurSetting.value);
   frame = frame || window.requestAnimationFrame(draw);
 };
 

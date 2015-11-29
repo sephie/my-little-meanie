@@ -1,7 +1,7 @@
 // https://github.com/mourner/simpleheat
 // customized/fixed here and there
 
-if (typeof module !== 'undefined') module.exports = simpleheat;
+if (typeof module !== 'undefined') module.exports = SimpleHeat;
 
 function SimpleHeat(canvas) {
   if (!(this instanceof SimpleHeat)) return new SimpleHeat(canvas);
@@ -39,8 +39,6 @@ SimpleHeat.prototype = {
   },
 
   add: function (point) {
-    console.log('-TB- ADD:', point);
-
     this._data.push(point);
     return this;
   },
