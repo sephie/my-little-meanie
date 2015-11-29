@@ -8,15 +8,25 @@
 </head>
 <body>
 
-<p>Hello HTML</p>
+<div class="info">
+    <h1>Node + Express + JS + Mongo + Mongoose + simpleHeat</h1>
 
-<button>Cool!</button>
-<button class="post-button">POST</button>
-<a href="/things">Things</a>
+    <button class="cool-button">Cool!</button>
+    <button class="post-button">Post a thing</button>
+    <button class="delete-button">Delete all the things</button>
+    <a href="/things">Things</a>
 
-<p class="target"></p>
+    <div class="log-space"></div>
+</div>
+<div class="options">
+    <label for="radius">Radius </label>
+    <input type="range" id="radius" value="25" min="10" max="50"><br>
+    <label for="blur">Blur </label>
+    <input type="range" id="blur" value="15" min="10" max="50">
+</div>
+<canvas id="canvas"></canvas>
 
-
+<script src="vendor/simpleHeat.js"></script>
 <script src="script.js"></script>
 
 </body>

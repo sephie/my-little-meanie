@@ -1,3 +1,45 @@
 html {
-    background: mediumaquamarine;
+    text-align: center;
+    font: 16px/1.4 "Helvetica Neue", Arial, sans-serif;
+    color: #555;
+}
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+a {
+    color: #0077ff;
+}
+
+#canvas {
+}
+
+.options {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.6);
+    border-bottom: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    line-height: 1;
+}
+
+.info {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.options input {
+    width: 200px;
+}
+
+.options label {
+    width: 60px;
+    float: left;
+    text-align: right;
+    margin-right: 10px;
 }
