@@ -52,12 +52,14 @@ app.get('/cool', function(request, response) {
 });
 
 app.route('/heat')
+
     .get(function(req, res) {
       HeatPoint.find().lean().exec(function(err, docs) {
         if (err) return console.error(err);
         res.json(transformToHeatData(docs));
       });
     })
+
     .post(function(req, res) {
       console.log('Express: /heat POST: ', req.body);
 
@@ -65,13 +67,15 @@ app.route('/heat')
         res.json(req.body)
       });
     })
+
     .delete(function(req, res) {
       console.log('Express: /heat DELETE');
       HeatPoint.remove({}, function(err) {
         if (err) console.log(err);
         res.send('Deleted all the things');
       });
-    });
+    })
+;
 
 function transformToHeatData(docs) {
   docs.forEach(function(el, index) {
@@ -91,6 +95,5 @@ function dbSaveThing(data) {
   );
   return newThing.save(function(err, thing) {
     if (err) console.log(err);
-    console.log('Saved a thing!');
   });
 }

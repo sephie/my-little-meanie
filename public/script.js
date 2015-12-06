@@ -28,7 +28,7 @@ window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequest
 
 //events
 coolButton.addEventListener('click', doSomethingCool);
-deleteButton.addEventListener('click', doDelete);
+deleteButton.addEventListener('click', deleteHeatData);
 
 window.onclick = function(e) {
   var point = [e.layerX, e.layerY, POINT_OPACITY];
@@ -52,7 +52,7 @@ function doSomethingCool() {
 
 /**
  * POST a point
- * @param {array} point - [x ,y]
+ * @param {array} point - [x ,y, opacity]
  */
 function doPoint(point) {
   var oReq = new XMLHttpRequest();
@@ -62,7 +62,7 @@ function doPoint(point) {
   oReq.send(JSON.stringify(point));
 }
 
-function doDelete() {
+function deleteHeatData() {
   var oReq = new XMLHttpRequest();
   oReq.addEventListener('load', resultToScreenHandler);
   oReq.open('DELETE', '/heat');
@@ -85,7 +85,7 @@ function initHeat() {
 //rendering
 function resultToScreenHandler() {
   console.log('handler: ', this);
-  logSpace.innerHTML += this.responseText + '<br>';
+  logSpace.innerHTML += '<span class="log">' + this.responseText + '</span>';
 }
 
 function draw() {

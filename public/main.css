@@ -2,17 +2,29 @@ html {
     font: 16px/1.4 "Helvetica Neue", Arial, sans-serif;
     color: #555;
 }
+
 body {
     margin: 0;
     padding: 0;
     overflow: hidden;
 }
 
-a {
-    color: #0077ff;
+h1 { font-size: 24px; }
+
+a { color: #0077ff; }
+
+#canvas {}
+
+.log-space {
+    display: flex;
+    flex-direction: column-reverse;
 }
 
-#canvas {
+.info {
+    position: absolute;
+    padding: 10px;
+    top: 0;
+    left: 0;
 }
 
 .options {
@@ -24,13 +36,6 @@ a {
     border-bottom: 1px solid #ccc;
     border-left: 1px solid #ccc;
     line-height: 1;
-}
-
-.info {
-    position: absolute;
-    padding: 10px;
-    top: 0;
-    left: 0;
 }
 
 .options input {
