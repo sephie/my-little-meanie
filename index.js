@@ -1,9 +1,38 @@
 var cool = require('cool-ascii-faces');
 var express = require('express');
-var mongoose = require('mongoose'); // The reason for this demo.
+var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 
 var dbUriString;
+
+var server;
+var io;
+var app = express();
+
+// Static page
+// -----------
+app.set('port', (process.env.PORT || 5000));
+app.use(express.static(__dirname + '/public'));
+app.use(bodyParser.json());
+
+server = require('http').Server(app);
+io = require('socket.io')(server);
+
+server.listen(app.get('port'), function() {
+  console.log('Node app is running on port', app.get('port'));
+});
+
+app.get('/', function(request, response) {
+  response.sendfile(__dirname + '/public/index.html');
+});
+
+io.on('connection', function (socket) {
+  socket.emit('connected', { hello: 'world' });
+  socket.on('my other event', function (data) {
+    console.log(data);
+  });
+});
+
 
 // DB
 // --
@@ -26,20 +55,6 @@ var heatPointSchema = new mongoose.Schema({
 });
 var HeatPoint = mongoose.model('HeatPoint', heatPointSchema);
 
-// Static page
-// -----------
-app = express();
-app.set('port', (process.env.PORT || 5000));
-app.use(express.static(__dirname + '/public'));
-app.use(bodyParser.json());
-
-app.listen(app.get('port'), function() {
-  console.log('Node app is running on port', app.get('port'));
-});
-
-app.get('/', function(request, response) {
-  response.sendfile(__dirname + '/public/index.html');
-});
 
 // REST API
 // --------
@@ -54,15 +69,13 @@ app.get('/cool', function(request, response) {
 app.route('/heat')
 
     .get(function(req, res) {
-      HeatPoint.find().lean().exec(function(err, docs) {
-        if (err) return console.error(err);
-        res.json(transformToHeatData(docs));
-      });
+      dbGetHeatData().then(function(data) {
+        res.json(data);
+      })
     })
 
     .post(function(req, res) {
       console.log('Express: /heat POST: ', req.body);
-
       dbSaveThing(req).then(function() {
         res.json(req.body)
       });
@@ -70,19 +83,20 @@ app.route('/heat')
 
     .delete(function(req, res) {
       console.log('Express: /heat DELETE');
-      HeatPoint.remove({}, function(err) {
-        if (err) console.log(err);
+      dbDeleteHeat().then(function() {
         res.send('Deleted all the things');
       });
     })
 ;
 
-function transformToHeatData(docs) {
-  docs.forEach(function(el, index) {
-    docs[index] = [el.x, el.y, el.opacity];
-  });
+function dbGetHeatData() {
+  return HeatPoint.find().exec(function(err, docs) {
+    if (err) console.log(err);
 
-  return docs;
+    docs.forEach(function(el, index) {
+      docs[index] = [el.x, el.y, el.opacity];
+    });
+  });
 }
 
 function dbSaveThing(data) {
@@ -94,6 +108,12 @@ function dbSaveThing(data) {
       }
   );
   return newThing.save(function(err, thing) {
+    if (err) console.log(err);
+  });
+}
+
+function dbDeleteHeat() {
+  return HeatPoint.remove({}, function(err) {
     if (err) console.log(err);
   });
 }

@@ -19,6 +19,14 @@ var browserChangeEvent = 'oninput' in radiusSetting ? 'oninput' : 'onchange';
 
 var POINT_OPACITY = 1;
 
+var socket = io.connect('http://localhost:5000');
+
+socket.on('heatAdded', function (data) {
+  console.log(data);
+  socket.emit('my other event', { my: 'data' });
+});
+
+
 heatCanvas.width= screen.width;
 heatCanvas.height= screen.height;
 getHeatData();
@@ -84,7 +92,6 @@ function initHeat() {
 
 //rendering
 function resultToScreenHandler() {
-  console.log('handler: ', this);
   logSpace.innerHTML += '<span class="log">' + this.responseText + '</span>';
 }
 
