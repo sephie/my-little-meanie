@@ -27,10 +27,10 @@ app.get('/', function(request, response) {
 });
 
 io.on('connection', function (socket) {
-  socket.emit('connected', { hello: 'world' });
-  socket.on('my other event', function (data) {
-    console.log(data);
-  });
+  //socket.emit('connected', { hello: 'world' });
+  //socket.on('heatAdded', function (data) {
+  //  console.log('heatAdded: ', data);
+  //});
 });
 
 
@@ -77,6 +77,7 @@ app.route('/heat')
     .post(function(req, res) {
       console.log('Express: /heat POST: ', req.body);
       dbSaveThing(req).then(function() {
+        io.emit('heatAdded', req.body);
         res.json(req.body)
       });
     })

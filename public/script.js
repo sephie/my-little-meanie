@@ -21,11 +21,16 @@ var POINT_OPACITY = 1;
 
 var socket = io.connect('http://localhost:5000');
 
-socket.on('heatAdded', function (data) {
-  console.log(data);
+socket.on('connected', function (data) {
+  console.log('connected: ', data);
   socket.emit('my other event', { my: 'data' });
 });
 
+socket.on('heatAdded', function(data) {
+  console.log('-TB- socket.on heatAdded: ', data);
+  heatMap.add(data);
+  frame = frame || window.requestAnimationFrame(draw);
+});
 
 heatCanvas.width= screen.width;
 heatCanvas.height= screen.height;
@@ -40,7 +45,6 @@ deleteButton.addEventListener('click', deleteHeatData);
 
 window.onclick = function(e) {
   var point = [e.layerX, e.layerY, POINT_OPACITY];
-  heatMap.add(point);
   doPoint(point);
   frame = frame || window.requestAnimationFrame(draw);
 };
