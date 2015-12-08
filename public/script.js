@@ -6,9 +6,12 @@ var heatMap;
 var frame;
 var radiusSetting = document.querySelector('#radius');
 var blurSetting = document.querySelector('#blur');
+var serverSetting = document.querySelector('#server');
+var serverButton =  document.querySelector('.set-server');
 var browserChangeEvent = 'oninput' in radiusSetting ? 'oninput' : 'onchange';
 var POINT_OPACITY = 1;
-var socket = io.connect('http://localhost:5000');
+var DEFAULT_SERVER = 'localhost:5000';
+var socket;
 
 function setupCanvasAndAddBindings() {
   heatCanvas.width= screen.width;
@@ -20,6 +23,9 @@ function setupCanvasAndAddBindings() {
   //event bindings that technically could use the socket, but left as AJAX here
   coolButton.addEventListener('click', doSomethingCool);
   deleteButton.addEventListener('click', deleteHeatData);
+  serverButton.addEventListener('click', function() {
+    setupSocket(serverSetting.value);
+  }); //UGL-ish
 
   window.onclick = function(e) {
     var point = [e.layerX, e.layerY, POINT_OPACITY];
@@ -34,8 +40,9 @@ function setupCanvasAndAddBindings() {
 
 
 // AJAX requests
-function doSomethingCool() {
+function doSomethingCool(e) {
   var oReq = new XMLHttpRequest();
+  e.stopPropagation(); //there is no heat, only the cool
   oReq.addEventListener('load', addToLog);
   oReq.open('GET', '/cool');
   oReq.send();
@@ -50,22 +57,38 @@ function deleteHeatData() {
 
 // SOCKET.IO
 // ---------
-socket.on('totalHeat', function(data) {
-  console.log('totalHeat: ', data);
-  heatMap = SimpleHeat('canvas').data(data).max(4);
-  frame = frame || window.requestAnimationFrame(renderHeat);
-});
+function setupSocket(server) {
+  if (!server) {
+    console.log('No server entered to switch to. Using default server: ', DEFAULT_SERVER);
+    server =  DEFAULT_SERVER;
+  }
 
-socket.on('serverHeat', function(data) {
-  console.log('serverHeat: ', data);
-  heatMap.add(data);
-  frame = frame || window.requestAnimationFrame(renderHeat);
-});
+  if (socket) {
+    console.log('Disconnecting', socket);
+    socket.disconnect();
+  }
 
+  console.log('Socket: connecting to ', server);
+  socket = io.connect('http://' + server);
+
+  socket.on('totalHeat', function(data) {
+    console.log('totalHeat: ', data);
+    heatMap = SimpleHeat('canvas').data(data).max(4);
+    frame = frame || window.requestAnimationFrame(renderHeat);
+  });
+
+  socket.on('serverHeat', function(data) {
+    console.log('serverHeat: ', data);
+    heatMap.add(data);
+    addToLog(data);
+    frame = frame || window.requestAnimationFrame(renderHeat);
+  });
+}
 
 //rendering
-function addToLog() {
-  logSpace.innerHTML += '<span class="log">' + this.responseText + '</span>';
+function addToLog(data) {
+  var logEntry = this.responseText || data;
+  logSpace.innerHTML += '<span class="log">' + logEntry + '</span>';
 }
 
 function renderHeat() {
@@ -74,4 +97,6 @@ function renderHeat() {
 }
 
 // Module pattern? Ain't nobody got time for that!
+console.log('App init');
+setupSocket();
 setupCanvasAndAddBindings();
