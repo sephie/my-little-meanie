@@ -6,12 +6,10 @@ var heatMap;
 var frame;
 var radiusSetting = document.querySelector('#radius');
 var blurSetting = document.querySelector('#blur');
-var serverSetting = document.querySelector('#server');
-var serverButton =  document.querySelector('.set-server');
 var browserChangeEvent = 'oninput' in radiusSetting ? 'oninput' : 'onchange';
-var POINT_OPACITY = 1;
-var DEFAULT_SERVER = 'localhost:5000';
 var socket;
+var POINT_OPACITY = 1;
+var SERVER_URL = 'https://fierce-coast-1811.herokuapp.com';
 
 function setupCanvasAndAddBindings() {
   heatCanvas.width= screen.width;
@@ -23,9 +21,6 @@ function setupCanvasAndAddBindings() {
   //event bindings that technically could use the socket, but left as AJAX here
   coolButton.addEventListener('click', doSomethingCool);
   deleteButton.addEventListener('click', deleteHeatData);
-  serverButton.addEventListener('click', function() {
-    setupSocket(serverSetting.value);
-  }); //UGL-ish
 
   window.onclick = function(e) {
     var point = [e.layerX, e.layerY, POINT_OPACITY];
@@ -58,18 +53,9 @@ function deleteHeatData() {
 // SOCKET.IO
 // ---------
 function setupSocket(server) {
-  if (!server) {
-    console.log('No server entered to switch to. Using default server: ', DEFAULT_SERVER);
-    server =  DEFAULT_SERVER;
-  }
-
-  if (socket) {
-    console.log('Disconnecting', socket);
-    socket.disconnect();
-  }
 
   console.log('Socket: connecting to ', server);
-  socket = io.connect('http://' + server);
+  socket = io.connect(server);
 
   socket.on('totalHeat', function(data) {
     console.log('totalHeat: ', data);
@@ -98,5 +84,5 @@ function renderHeat() {
 
 // Module pattern? Ain't nobody got time for that!
 console.log('App init');
-setupSocket();
+setupSocket(SERVER_URL);
 setupCanvasAndAddBindings();
